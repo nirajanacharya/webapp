@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Recommendation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: url('https://english.corporatekhabar.com/wp-content/uploads/2022/12/1236.jpeg');
+            background-size: cover;
+            opacity: 1;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: rgba(255, 255, 255, 0.8);
+            animation: fadeIn 1s ease;
+            position: relative;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            animation: fadeIn 1s ease;
+        }
+
+        .form-group label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 95%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: #4CAF50;
+        }
+
+        .form-group button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            animation: pulse 2s infinite;
+        }
+
+        .form-group button:hover {
+            background-color: #45a049;
+        }
+
+        .dialogue-box {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 40px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            display: none;
+            animation: fadeInDialogue 0.5s ease;
+        }
+
+        .dialogue-box p {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .dialogue-box button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            background-color: #007bff;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            animation: pulse 2s infinite;
+            margin-top: 20px;
+        }
+
+        .dialogue-box button:hover {
+            background-color: #0056b3;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInDialogue {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Mobile Responsive Styles */
+        @media only screen and (max-width: 600px) {
+            .container {
+                margin: 20px auto;
+                padding: 10px;
+                max-width: none;
+            }
+
+            .form-group input {
+                font-size: 14px;
+                padding: 8px;
+            }
+
+            .form-group button {
+                padding: 10px 20px;
+                font-size: 16px;
+            }
+
+            .dialogue-box {
+                padding: 20px;
+            }
+
+            .dialogue-box p {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Unlock Your Field's Potential: Discover the Perfect Crop Match!</h2>
+        <form id="cropForm">
+            <div class="form-group">
+                <label for="pH">pH:</label>
+                <input type="text" id="pH" name="pH" required>
+            </div>
+            <div class="form-group">
+                <label for="phosphorus">Phosphorus:</label>
+                <input type="text" id="phosphorus" name="phosphorus" required>
+            </div>
+            <div class="form-group">
+                <label for="potassium">Potassium:</label>
+                <input type="text" id="potassium" name="potassium" required>
+            </div>
+            <div class="form-group">
+                <label for="urea">Urea:</label>
+                <input type="text" id="urea" name="urea" required>
+            </div>
+            <div class="form-group">
+                <label for="temperature">Temperature:</label>
+                <input type="text" id="temperature" name="temperature" required>
+            </div>
+            <div class="form-group">
+                <button type="submit" id="recommendButton">Recommend</button>
+            </div>
+        </form>
+        <div id="dialogueBox" class="dialogue-box">
+            <p>Best Fit: <strong id="recommendedCrop"></strong></p>
+            <button id="clearFormButton">Clear</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('cropForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const form = event.target;
+            const data = new FormData(form);
+            
+            fetch('/recommend_crop', {
+                method: 'POST',
+                body: data
+            })
+            .then(response => response.json())
+            .then(result => {
+                if ('recommended_crop' in result) {
+                    document.getElementById('recommendedCrop').textContent = result.recommended_crop;
+                    document.getElementById('dialogueBox').style.display = 'block';
+                } else if ('error' in result) {
+                    alert('Error: ' + result.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+        document.getElementById('clearFormButton').addEventListener('click', function() {
+            document.getElementById('cropForm').reset();
+            document.getElementById('dialogueBox').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
