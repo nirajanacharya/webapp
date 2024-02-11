@@ -168,23 +168,23 @@
         <form id="cropForm">
             <div class="form-group">
                 <label for="pH">pH:</label>
-                <input type="text" id="pH" name="pH" required>
+                <input type="text" id="pH" name="pH" required placeholder="Enter pH value 5.5 to 7.4" required>
             </div>
             <div class="form-group">
                 <label for="phosphorus">Phosphorus:</label>
-                <input type="text" id="phosphorus" name="phosphorus" required>
+                <input type="text" id="phosphorus" name="phosphorus" required placeholder="Enter Phosphorus value 5.0 to 39.9" required>
             </div>
             <div class="form-group">
                 <label for="potassium">Potassium:</label>
-                <input type="text" id="potassium" name="potassium" required>
+                <input type="text" id="potassium" name="potassium" required placeholder="Enter Potassium value 40 to 299.9" required>
             </div>
             <div class="form-group">
                 <label for="urea">Urea:</label>
-                <input type="text" id="urea" name="urea" required>
+                <input type="text" id="urea" name="urea" required placeholder="Enter urea value 20 to 99.9" required>
             </div>
             <div class="form-group">
                 <label for="temperature">Temperature:</label>
-                <input type="text" id="temperature" name="temperature" required>
+                <input type="text" id="temperature" name="temperature" required placeholder="Enter Temperature value 50 to 85.9" required>
             </div>
             <div class="form-group">
                 <button type="submit" id="recommendButton">Recommend</button>
@@ -197,33 +197,69 @@
     </div>
 
     <script>
-        document.getElementById('cropForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const form = event.target;
-            const data = new FormData(form);
-            
-            fetch('/recommend_crop', {
-                method: 'POST',
-                body: data
-            })
-            .then(response => response.json())
-            .then(result => {
-                if ('recommended_crop' in result) {
-                    document.getElementById('recommendedCrop').textContent = result.recommended_crop;
-                    document.getElementById('dialogueBox').style.display = 'block';
-                } else if ('error' in result) {
-                    alert('Error: ' + result.error);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        });
+document.getElementById('cropForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const form = event.target;
 
-        document.getElementById('clearFormButton').addEventListener('click', function() {
-            document.getElementById('cropForm').reset();
-            document.getElementById('dialogueBox').style.display = 'none';
-        });
+    // Validate pH
+    const pH = parseFloat(form.elements.pH.value);
+    if (isNaN(pH) || pH < 5.500016 || pH > 7.499994) {
+        alert('Please enter a valid pH value between  5.500016 and 7.499994');
+        return;
+    }
+
+    // Validate Phosphorus
+    const phosphorus = parseFloat(form.elements.phosphorus.value);
+    if (isNaN(phosphorus) || phosphorus < 5.000354 || phosphorus > 39.999834) {
+        alert('Please enter a valid phosphorus value between 5.000354 and 39.999834');
+        return;
+    }
+
+    // Validate Potassium
+    const potassium = parseFloat(form.elements.potassium.value);
+    if (isNaN(potassium) || potassium <40.001335 || potassium > 299.977196) {
+        alert('Please enter a valid potassium value between 40.001335 and 299.977196');
+        return;
+    }
+
+    // Validate Urea
+    const urea = parseFloat(form.elements.urea.value);
+    if (isNaN(urea) || urea < 20.000049 || urea >99.997990) {
+        alert('Please enter a valid urea value between 20.000049 and 99.997990.');
+        return;
+    }
+
+    // Validate Temperature
+    const temperature = parseFloat(form.elements.temperature.value);
+    if (isNaN(temperature) || temperature <50.000158|| temperature > 85.998926) {
+        alert('Please enter a valid temperature value between 50.000158 and 85.998926');
+        return;
+    }
+
+    fetch('/recommend_crop', {
+        method: 'POST',
+        body: new FormData(form)
+    })
+    .then(response => response.json())
+    .then(result => {
+        if ('recommended_crop' in result) {
+            document.getElementById('recommendedCrop').textContent = result.recommended_crop;
+            document.getElementById('dialogueBox').style.display = 'block';
+        } else if ('error' in result) {
+            alert('Error: ' + result.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});
+
+document.getElementById('clearFormButton').addEventListener('click', function(event) {
+    event.preventDefault();
+    document.getElementById('cropForm').reset();
+    document.getElementById('dialogueBox').style.display = 'none'; // Hide the dialogue box
+});
+
     </script>
 </body>
 </html>
